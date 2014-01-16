@@ -10,7 +10,7 @@ module Ans::Resque::Scheduler::Web::Server
         def queue_from_class_name(class_name)
           Resque.queue_from_class(ResqueScheduler::Util.constantize(class_name))
         rescue
-          class_name
+          "<CLASS NOT FOUND>"
         end
 
         def schedule_interval(config)
@@ -89,6 +89,9 @@ module Ans::Resque::Scheduler::Web::Server
         require "yaml"
         YAML::ENGINE.yamler = "psych"
         @config_hash = YAML.load(@config)
+        if @config_hash.respond_to?(:[])
+          @config_hash["class"] ||= @name
+        end
 
         is_change_schedule = false
         if params["commit"] || params[:commit]
