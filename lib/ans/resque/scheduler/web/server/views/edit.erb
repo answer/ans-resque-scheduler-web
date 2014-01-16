@@ -10,36 +10,7 @@
   </div>
 
   <div>
-  <% unless @config_hash.blank? %>
-    <table>
-      <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Interval</th>
-        <th>Class</th>
-        <th>Queue</th>
-        <th>Arguments</th>
-      </tr>
-      <tr>
-        <td><%= h @name %></td>
-        <td><%= h @config_hash['description'] %></td>
-        <td style="white-space:nowrap"><%= h schedule_interval(@config_hash) %></td>
-        <td><%= h schedule_class(@config_hash) %></td>
-        <td><%= h @config_hash['queue'] || queue_from_class_name(@config_hash['class']) %></td>
-        <td><%= h @config_hash['args'].inspect %></td>
-      </tr>
-    </table>
-
-    <div>
-      <input type="submit" name="confirm" value="Re-Confirm">
-      <% if @confirm %>
-        <input type="submit" name="commit" value="<% if @current_config_hash %>Update<% else %>Create<% end %>" style="margin-left: 4em">
-      <% end %>
-      <input type="submit" name="reset" value="Reset" style="margin-left: 4em">
-    </div>
-
-    <% if @config_hash != @current_config_hash && @current_config_hash %>
-      <p>current schedule</p>
+    <% unless @config_hash.blank? %>
       <table>
         <tr>
           <th>Name</th>
@@ -51,33 +22,65 @@
         </tr>
         <tr>
           <td><%= h @name %></td>
-          <td><%= h @current_config_hash['description'] %></td>
-          <td style="white-space:nowrap"><%= h schedule_interval(@current_config_hash) %></td>
-          <td><%= h schedule_class(@current_config_hash) %></td>
-          <td><%= h @current_config_hash['queue'] || queue_from_class_name(@current_config_hash['class']) %></td>
-          <td><%= h @current_config_hash['args'].inspect %></td>
+          <td><%= h @config_hash['description'] %></td>
+          <td style="white-space:nowrap"><%= h schedule_interval(@config_hash) %></td>
+          <td><%= h schedule_class(@config_hash) %></td>
+          <td><%= h @config_hash['queue'] || queue_from_class_name(@config_hash['class']) %></td>
+          <td><%= h @config_hash['args'].inspect %></td>
         </tr>
       </table>
+
+      <div>
+        <input type="submit" name="confirm" value="Confirm">
+        <% if @confirm %>
+          <input type="submit" name="commit" value="<% if @current_config_hash %>Update<% else %>Create<% end %>" style="margin-left: 4em">
+          <input type="submit" name="reset" value="Reset" style="margin-left: 4em">
+        <% end %>
+        <% if @current_config_hash %>
+          <input type="submit" name="remove" value="Remove-Confirm" style="margin-left: 4em">
+        <% end %>
+      </div>
+
+      <% if @config_hash != @current_config_hash && @current_config_hash %>
+        <p>current schedule</p>
+        <table>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Interval</th>
+            <th>Class</th>
+            <th>Queue</th>
+            <th>Arguments</th>
+          </tr>
+          <tr>
+            <td><%= h @name %></td>
+            <td><%= h @current_config_hash['description'] %></td>
+            <td style="white-space:nowrap"><%= h schedule_interval(@current_config_hash) %></td>
+            <td><%= h schedule_class(@current_config_hash) %></td>
+            <td><%= h @current_config_hash['queue'] || queue_from_class_name(@current_config_hash['class']) %></td>
+            <td><%= h @current_config_hash['args'].inspect %></td>
+          </tr>
+        </table>
+      <% end %>
+    <% else %>
+      <div>
+        <input type="submit" name="confirm" value="Confirm">
+        <% if @confirm %>
+          <input type="submit" name="reset" value="Reset" style="margin-left: 4em">
+        <% end %>
+        <% if @current_config_hash %>
+          <input type="submit" name="commit" value="Remove" style="margin-left: 4em">
+        <% end %>
+      </div>
     <% end %>
 
     <p>e.g.</p>
-    <pre style="border: 1px solid gray; margin: 1em 0.1em; padding: 1em;">queue: "manage"
-class: "MyJobClass"
-description: "this job description"
+    <pre style="border: 1px solid gray; margin: 1em 0.1em; padding: 1em;">class: MyJobClass
+description: this job description
+args:
+  - 01
+  - 02
+  - 03
 cron: "0 0 * * *"</pre>
-  <% else %>
-    <div>
-      <input type="submit" name="confirm" value="Confirm">
-      <% if @current_config_hash %>
-        <input type="submit" name="commit" value="Remove" style="margin-left: 4em">
-      <% end %>
-    </div>
-
-    <p>e.g.</p>
-    <pre style="border: 1px solid gray; margin: 1em 0.1em; padding: 1em;">queue: "manage"
-class: "MyJobClass"
-description: "this job description"
-cron: "0 0 * * *"</pre>
-  <% end %>
   </div>
 </form>

@@ -63,56 +63,58 @@ module Ans::Resque::Scheduler::Web::Server
 
       get "/schedule/:id" do
         @name = params["id"] || params[:id]
-        @current_config_hash = @config_hash = Resque.get_schedule(@name)
-        if @config_hash.blank?
-          @config = ""
+        @config_hash = Resque.get_schedule(@name)
+        if @config_hash
+          @current_config_hash = @config_hash
         else
-          @config = @config_hash.to_yaml
+          description = ResqueScheduler::Util.constantize(@name).instance_variable_get(:@description) rescue @name
+          @config_hash = {
+            "description" => description,
+            "class" => @name,
+          }
         end
+        @config = @config_hash.to_yaml
         erb File.read(File.join(File.dirname(__FILE__), 'server/views/edit.erb'))
       end
       post "/schedule/:id/confirm" do
         @name = params["id"] || params[:id]
-        @current_config_hash = Resque.get_schedule(@name)
         if params["reset"] || params[:reset]
-          if @current_config_hash
-            @config = @current_config_hash.to_yaml
-          else
-            @config = ""
-          end
+          redirect u("/schedule/#{@name}")
         else
           @confirm = true
-          @config = params["config"] || params[:config]
-        end
-
-        require "psych"
-        require "yaml"
-        YAML::ENGINE.yamler = "psych"
-        @config_hash = YAML.load(@config)
-        if @config_hash.respond_to?(:[])
-          @config_hash["class"] ||= @name
-        end
-
-        is_change_schedule = false
-        if params["commit"] || params[:commit]
-          if @config.blank?
-            Resque.remove_schedule @name
-            is_change_schedule = true
+          if params["remove"] || params[:remove]
+            @config = ""
           else
-            if @config_hash.respond_to?(:[])
-              Resque.set_schedule @name, @config_hash
+            @config = params["config"] || params[:config]
+          end
+
+          require "psych"
+          require "yaml"
+          YAML::ENGINE.yamler = "psych"
+          @config_hash = YAML.load(@config) rescue nil
+          @current_config_hash = Resque.get_schedule(@name)
+
+          is_change_schedule = false
+          if params["commit"] || params[:commit]
+            if @config.blank?
+              Resque.remove_schedule @name
               is_change_schedule = true
+            else
+              if @config_hash.respond_to?(:[])
+                Resque.set_schedule @name, @config_hash
+                is_change_schedule = true
+              end
             end
           end
-        end
 
-        if is_add_schedule
-          File.open Rails.root.join("config/resque/schedule.yml"), "w" do |f|
-            f.puts Resque.get_schedules.to_yaml
+          if is_change_schedule
+            File.open Rails.root.join("config/resque/schedule.yml"), "w" do |f|
+              f.puts Resque.get_schedules.to_yaml
+            end
+            redirect u("/schedule")
+          else
+            erb File.read(File.join(File.dirname(__FILE__), 'server/views/edit.erb'))
           end
-          redirect u("/schedule")
-        else
-          erb File.read(File.join(File.dirname(__FILE__), 'server/views/edit.erb'))
         end
       end
 
