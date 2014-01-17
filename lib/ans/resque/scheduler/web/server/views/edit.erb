@@ -4,10 +4,16 @@
   Edit scheduled job
 </p>
 
-<form style="float: left;" action="<%= u "/schedule/#{@name}/confirm" %>" method="post">
+<form style="float: left;" action="<%= u "/all-schedule/#{@name}/confirm" %>" method="post">
   <div>
-    <textarea name="config" cols="120" rows="12"><%= h @config %></textarea>
+    <textarea name="config" cols="120" rows="8"><%= h @config %></textarea>
   </div>
+  <% (@part_config_hashes || part_configs(@name)).each do |key,config| %>
+    <div>
+      <p><%= key %></p>
+      <textarea name="part_config[<%= key %>]" cols="120" rows="4"><%= h config.try(:to_yaml) %></textarea>
+    </div>
+  <% end %>
 
   <div>
     <% unless @config_hash.blank? %>
@@ -23,7 +29,7 @@
         <tr>
           <td><%= h @name %></td>
           <td><%= h @config_hash['description'] %></td>
-          <td style="white-space:nowrap"><%= h schedule_interval(@config_hash) %></td>
+          <td style="white-space:nowrap"><%= all_schedule_interval(@part_config_hashes || @name) %></td>
           <td><%= h schedule_class(@config_hash) %></td>
           <td><%= h @config_hash['queue'] || queue_from_class_name(@config_hash['class']) %></td>
           <td><%= h @config_hash['args'].inspect %></td>
@@ -41,7 +47,7 @@
         <% end %>
       </div>
 
-      <% if @config_hash != @current_config_hash && @current_config_hash %>
+      <% if @confirm && (@config_hash != @current_config_hash || @part_configs != part_configs(@name)) %>
         <p>current schedule</p>
         <table>
           <tr>
@@ -55,7 +61,7 @@
           <tr>
             <td><%= h @name %></td>
             <td><%= h @current_config_hash['description'] %></td>
-            <td style="white-space:nowrap"><%= h schedule_interval(@current_config_hash) %></td>
+            <td style="white-space:nowrap"><%= all_schedule_interval(@name) %></td>
             <td><%= h schedule_class(@current_config_hash) %></td>
             <td><%= h @current_config_hash['queue'] || queue_from_class_name(@current_config_hash['class']) %></td>
             <td><%= h @current_config_hash['args'].inspect %></td>

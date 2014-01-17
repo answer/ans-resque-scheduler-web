@@ -23,11 +23,24 @@ Or install it yourself as:
     # config/initializer/resque-scheduler.rb
     Resque::Scheduler.dynamic = true
 
+    # config/initializer/ans-resque-scheduler-web.rb
+    Ans::Resque::Scheduler::Web.configure do |config|
+      config.schedules = {
+        main: Rails.root.join("config/resque/schedule.yml"),
+      }
+    end
+
 resque-server の画面に Edit-Schedule タブが追加される  
 そこで job name を打ち込んで編集、追加が可能
 
-config/resque/schedule.yml に変更されたスケジュールが書き込まれる  
-capistrano 等でリリースする際は、 config/resque を shared へリンクとして逃しておくこと
+スケジュール変更時、 `config.schedules` に列挙されたファイルが同期される  
+スケジュールの同期は job 名によって行われ、 interval 設定を個別に行うことが可能  
+個別の設定は cron と every のみ
+
+変更された場合、 `.reload` の接尾辞をつけて新しいファイルが生成される  
+それぞれ、スケジュールを読み直す job を every: 1s で置いておき、 reload がついたファイルが存在する場合に読みなおす、という処理を書いておくことを想定している
+
+capistrano 等でリリースする際は、 config/resque 等を shared へリンクとして逃しておくこと
 
 ## Spec
 
