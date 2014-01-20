@@ -119,6 +119,9 @@ module Ans::Resque::Scheduler::Web::Server
         @name = params["id"] || params[:id]
         @config_hash = Resque.get_schedule(@name)
         if @config_hash
+          %w(cron every).each do |prop|
+            @config_hash.delete prop
+          end
           @current_config_hash = @config_hash
         else
           description = ResqueScheduler::Util.constantize(@name).instance_variable_get(:@description) rescue @name
