@@ -33,6 +33,8 @@ module Ans::Resque::Scheduler::Web::Server
         end
         def all_configs
           @all_configs ||= Ans::Resque::Scheduler::Web.config.schedules.map{|key,file|
+            @current_key = key if file.start_with?(Rails.root.to_s)
+
             if FileTest.exist?(file)
               hash = YAML.load_file(file) rescue nil
               unless hash.respond_to?(:[])
@@ -46,11 +48,20 @@ module Ans::Resque::Scheduler::Web::Server
           case name
           when Hash
             part_configs = name
+            current_config = nil
           else
             part_configs = part_configs(name)
+            current_config = Resque.get_schedule name
           end
           '<table style="margin:0;">' << part_configs.map{|key,config|
-            "<tr><td>#{key}</td><td>#{h schedule_interval(config || {})}</td></tr>"
+            if key == @current_key
+              style = %Q{ style="background-color: #ffffd1;"}
+
+              if current_config
+                config = current_config
+              end
+            end
+            %Q{<tr><td#{style}>#{key}</td><td#{style}>#{h schedule_interval(config || {})}</td></tr>}
           }.join("") << "</table>"
         end
 
