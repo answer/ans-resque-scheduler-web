@@ -5,15 +5,21 @@
 </p>
 
 <form style="float: left;" action="<%= u "/all-schedule/#{@name}/confirm" %>" method="post">
-  <div>
-    <textarea name="config" cols="120" rows="8"><%= h @config %></textarea>
-  </div>
-  <% (@part_config_hashes || part_configs(@name)).each do |key,config| %>
-    <div>
-      <p><%= key %></p>
-      <textarea name="part_config[<%= key %>]" cols="120" rows="4"><%= h config.try(:to_yaml) %></textarea>
-    </div>
-  <% end %>
+  <table>
+    <tr>
+      <td colspan="2">
+        <textarea name="config" cols="120" rows="8"><%= h @config %></textarea>
+      </td>
+    </tr>
+    <% (@part_config_hashes || part_configs(@name)).each do |key,config| %>
+      <tr>
+        <td><%= key %></td>
+        <td>
+          <textarea name="part_config[<%= key %>]" cols="80" rows="2"><%= h config.try(:to_yaml) %></textarea>
+        </td>
+      </tr>
+    <% end %>
+  </table>
 
   <div>
     <% unless @config_hash.blank? %>
