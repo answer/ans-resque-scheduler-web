@@ -143,9 +143,9 @@ module Ans::Resque::Scheduler::Web::Server
           is_schedule_changed = false
           if params["commit"] || params[:commit]
             Ans::Resque::Scheduler::Web.config.schedules.map{|key,file|
-              if FileTest.exist?(file)
-                @current_key = key if file.start_with?(Rails.root.to_s)
+              @current_key = key if file.start_with?(Rails.root.to_s)
 
+              if FileTest.exist?(file)
                 is_changed = false
                 hash = YAML.load_file(file) rescue nil
                 unless hash.respond_to?(:[])
