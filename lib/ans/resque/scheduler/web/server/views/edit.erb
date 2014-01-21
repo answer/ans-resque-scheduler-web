@@ -47,7 +47,7 @@
         <% end %>
       </div>
 
-      <% if @confirm && (@config_hash != @current_config_hash || @part_configs != part_configs(@name)) %>
+      <% if @confirm && @current_config_hash && (@config_hash != @current_config_hash || @part_configs != part_configs(@name)) %>
         <p>current schedule</p>
         <table>
           <tr>
