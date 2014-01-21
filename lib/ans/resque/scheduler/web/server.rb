@@ -59,6 +59,7 @@ module Ans::Resque::Scheduler::Web::Server
 
               if current_config
                 config = current_config
+                is_current_config = true
               end
             end
             %Q{<tr><td#{style}>#{key}</td><td#{style}>#{h schedule_interval(config || {})}</td></tr>}
@@ -66,30 +67,12 @@ module Ans::Resque::Scheduler::Web::Server
         end
 
         def schedule_interval(config)
-          if config['every']
-            schedule_interval_every(config['every'])
-          elsif config['cron']
-            'cron: ' + config['cron'].to_s
-          else
-            'Not currently scheduled'
+          %w(every cron).each do |interval_key|
+            if config[interval_key]
+              return "#{interval_key}: #{config[interval_key]}"
+            end
           end
-        end
-
-        def schedule_interval_every(every)
-          s = 'every: '
-          if every.respond_to?(:first)
-            s << every.first
-          else
-            s << every
-          end
-
-          return s unless every.respond_to?(:length) && every.length > 1
-
-          s << ' ('
-          meta = every.last.map do |key, value|
-            "#{key.to_s.gsub(/_/, ' ')} #{value}"
-          end
-          s << meta.join(', ') << ')'
+          'Not currently scheduled'
         end
 
         def schedule_class(config)
