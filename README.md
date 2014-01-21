@@ -25,6 +25,7 @@ Or install it yourself as:
 
     # config/initializer/ans-resque-scheduler-web.rb
     Ans::Resque::Scheduler::Web.configure do |config|
+      config.root = Rails.root.to_s
       config.schedules = {
         main: Rails.root.join("config/resque/schedule.yml"),
       }
@@ -36,6 +37,10 @@ resque-server の画面に Edit-Schedule タブが追加される
 スケジュール変更時、 `config.schedules` に列挙されたファイルが同期される  
 スケジュールの同期は job 名によって行われ、 interval 設定を個別に行うことが可能  
 個別の設定は cron と every のみ
+
+`config.root` の設定は、 `config.schedules` に列挙したファイルのうち、どのパスが自分の物であるかを判定するもの  
+間違った設定をした場合、変更時にスケジュールがリロードされない  
+`config.schedules` に前方一致するものを指定すること
 
 変更された場合、 `.reload` の接尾辞をつけて新しいファイルが生成される  
 それぞれ、スケジュールを読み直す job を every: 1s で置いておき、 reload がついたファイルが存在する場合に読みなおす、という処理を書いておくことを想定している

@@ -33,7 +33,7 @@ module Ans::Resque::Scheduler::Web::Server
         end
         def all_configs
           @all_configs ||= Ans::Resque::Scheduler::Web.config.schedules.map{|key,file|
-            @current_key = key if file.start_with?(Rails.root.to_s)
+            @current_key = key if file.start_with?(Ans::Resque::Scheduler::Web.config.root)
 
             if FileTest.exist?(file)
               hash = YAML.load_file(file) rescue nil
@@ -143,7 +143,7 @@ module Ans::Resque::Scheduler::Web::Server
           is_schedule_changed = false
           if params["commit"] || params[:commit]
             Ans::Resque::Scheduler::Web.config.schedules.map{|key,file|
-              @current_key = key if file.start_with?(Rails.root.to_s)
+              @current_key = key if file.start_with?(Ans::Resque::Scheduler::Web.config.root)
 
               if FileTest.exist?(file)
                 is_changed = false
