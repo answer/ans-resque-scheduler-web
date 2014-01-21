@@ -10,6 +10,7 @@ module Ans
 
         configure do |config|
           config.schedules = {}
+          config.root = Rails.root.to_s
         end
       end
     end
