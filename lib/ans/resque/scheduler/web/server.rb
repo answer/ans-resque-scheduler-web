@@ -107,11 +107,12 @@ module Ans::Resque::Scheduler::Web::Server
           end
           @current_config_hash = @config_hash
         else
-          description = ResqueScheduler::Util.constantize(@name).instance_variable_get(:@description) rescue @name
           @config_hash = {
-            "description" => description,
             "class" => @name,
           }
+        end
+        unless @config_hash["description"]
+          @config_hash["description"] = ResqueScheduler::Util.constantize(@config_hash["class"]).instance_variable_get(:@description) rescue @name
         end
         @config = @config_hash.to_yaml
 
